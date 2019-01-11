@@ -1,0 +1,13 @@
+[package]
+name = "aco_rust"
+version = "0.1.0"
+authors = ["raja"]
+edition = "2018"
+
+[dependencies]
+rand = "*"
+rayon = "*"
+permutation = "0.2.5"
+
+[profile.release]
+debug = true
