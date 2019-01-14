@@ -1,0 +1,19 @@
+[package]
+name = "aco_rust"
+version = "0.1.0"
+authors = ["raja"]
+edition = "2018"
+
+[dependencies]
+memmap = "0.7.0"
+serde_derive = "1.0.84"
+fnv = "1.0.6"
+byteorder = "1.2.7"
+serde = "*"
+rustbreak = "1.4.0"
+rand = "*"
+rayon = "*"
+permutation = "0.2.5"
+
+[profile.release]
+debug = true
