@@ -4,10 +4,10 @@ mod aco_no_mem;
 extern crate fnv;
 extern crate memmap;
 use byteorder::{ByteOrder, LittleEndian};
-use memmap::MmapOptions;
-use std::f32::INFINITY;
 use fnv::FnvHashMap;
+use memmap::MmapOptions;
 use std::collections::HashMap;
+use std::f32::INFINITY;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufRead;
@@ -16,63 +16,61 @@ use std::io::BufWriter;
 use std::mem::transmute;
 use std::{mem, slice};
 
-//fn main() {
-//println!("Hello, world!");
-//let f = File::open("/home/datascience/Documents/aco_rust/cities.csv").unwrap();
-//let file = BufReader::new(&f);
-//let mut coordinates: Vec<aco_memmap::Coordinate> = Vec::new();
-//let mut length = 0;
-//for line in file.lines() {
-//length += 1;
-//let line = line.unwrap();
-//let line = line.trim();
-//
-//let line: Vec<&str> = line.split(",").collect();
-////println!("{:?}", line);
-//coordinates.push(aco_memmap::Coordinate {
-//x: line[1].parse().unwrap(),
-//y: line[2].parse().unwrap(),
-//});
-//}
-//
-//println!("finished coordinate file");
+fn main5() {
+    println!("Hello, world!");
+    let f = File::open("/home/datascience/Documents/aco_rust/cities.csv").unwrap();
+    let file = BufReader::new(&f);
+    let mut coordinates: Vec<aco_memmap::Coordinate> = Vec::new();
+    let mut length = 0;
+    for line in file.lines() {
+        length += 1;
+        let line = line.unwrap();
+        let line = line.trim();
 
-//{
-//let mut f = File::create("/data1/temp").expect("Unable to create file");
-//let mut file = BufWriter::new(&f);
-//
-//let mut count = 0;
-//for i in &coordinates {
-//println!("{:?}", count);
-//count += 1;
-//for j in &coordinates {
-//let number = aco_memmap::euclidean_distance(i, j);
-//let raw_bytes: [u8; mem::size_of::<f32>()] = unsafe { std::mem::transmute(number) };
-//file.write(&raw_bytes).unwrap();
-//}
-//}
-//}
+        let line: Vec<&str> = line.split(",").collect();
+        //println!("{:?}", line);
+        coordinates.push(aco_memmap::Coordinate {
+            x: line[1].parse().unwrap(),
+            y: line[2].parse().unwrap(),
+        });
+    }
 
-//let mut f = File::open("/data1/temp").unwrap();
-//println!("read");
-//let mmap = unsafe { MmapOptions::new().map(&f).unwrap() };
-//
-//let mut antcolony = aco_memmap::AntColony {
-//no_ants: 4,
-//no_best_paths: 100,
-//no_iterations: 200,
-//decay: None,
-//alpha: 1.0,
-//beta: 1.0,
-//distances: mmap,
-//length: length,
-//initial_tour: None,
-//default_pheromone: 0.0,
-//nodes: Vec::new(),
-//pheromones: HashMap::new(),
-//};
-//println!("{:?}", antcolony.run());
-//}
+    println!("finished coordinate file");
+    {
+        let mut f = File::create("/data1/temp").expect("Unable to create file");
+        let mut file = BufWriter::new(&f);
+
+        let mut count = 0;
+        for i in &coordinates {
+            println!("{:?}", count);
+            count += 1;
+            for j in &coordinates {
+                let number = aco_memmap::euclidean_distance(i, j);
+                let raw_bytes: [u8; mem::size_of::<f32>()] = unsafe { std::mem::transmute(number) };
+                file.write(&raw_bytes).unwrap();
+            }
+        }
+    }
+    let mut f = File::open("/data1/temp").unwrap();
+    println!("read");
+    let mmap = unsafe { MmapOptions::new().map(&f).unwrap() };
+
+    let mut antcolony = aco_memmap::AntColony {
+        no_ants: 4,
+        no_best_paths: 100,
+        no_iterations: 200,
+        decay: None,
+        alpha: 1.0,
+        beta: 1.0,
+        distances: mmap,
+        length: length,
+        initial_tour: None,
+        default_pheromone: 0.0,
+        nodes: Vec::new(),
+        pheromones: HashMap::new(),
+    };
+    println!("{:?}", antcolony.run());
+}
 
 fn main0() {
     println!("Hello, world!");
