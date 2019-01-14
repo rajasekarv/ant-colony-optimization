@@ -249,9 +249,9 @@ fn main() {
     }
 
     let mut antcolony = aco_no_mem::AntColony {
-        no_ants: 1,
-        no_best_paths: 1,
-        no_iterations: 1,
+        no_ants: 10,
+        no_best_paths: 100,
+        no_iterations: 100,
         decay: None,
         alpha: 1.0,
         beta: 1.0,
