@@ -4,15 +4,13 @@ extern crate rand;
 extern crate rayon;
 
 use fnv::FnvHashMap;
-use fnv::FnvHashSet;
-use fnv::FnvHasher;
+// use fnv::FnvHashSet;
 use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 use rayon::prelude::*;
 use std::cmp::Ordering;
-use std::collections::{HashMap, HashSet};
+// use std::collections::{HashMap, HashSet};
 use std::f32::MAX;
-use std::hash::BuildHasherDefault;
 
 #[derive(Debug, Clone)]
 pub struct F32(pub f32);
@@ -105,8 +103,33 @@ impl AntColony {
         }
         self.pheromones = FnvHashMap::default();
         self.default_pheromone = 1.0 / (self.distances.len() as f32);
-        //let mut shortest_path_iteration = TourPath::new();
         let mut shortest_path_all_time = TourPath::new();
+        if let Some(intial_tour) = &self.initial_tour {
+            let mut ant_path = Vec::new();
+            let mut skip = 0;
+            let mut start = 0;
+            for i in intial_tour {
+                if skip == 0 {
+                    start = 0;
+                    skip = 1;
+                    continue;
+                }
+                ant_path.push(UnitPath {
+                    start: start,
+                    end: *i,
+                });
+                start = *i;
+            }
+            let shortest_path_all_time = TourPath {
+                    distance: self.path_distance(&ant_path),
+                    path: ant_path,
+                };
+            self.spread_pheromone(
+                &vec![shortest_path_all_time.clone()],
+                1,
+            );
+        }
+        //let mut shortest_path_iteration = TourPath::new();
         shortest_path_all_time.distance = MAX;
         for iteration in 0..self.no_iterations {
             println!("inside iteration no {}", iteration);
@@ -223,86 +246,87 @@ impl AntColony {
         self.nodes[dist.sample(&mut rng)]
     }
 
-    //fn gen_path(&self, start: i32) -> Vec<UnitPath> {
-    //println!("inside genpath");
-    //let mut antpath: Vec<UnitPath> = Vec::new();
-    //let mut visited_nodes: FnvHashSet<i32> = FnvHashSet::default();
-    //visited_nodes.insert(start);
-    //let mut prev = start;
-    //let mut distances: Vec<f32> = Vec::new();
-    ////let mut pheromone_prev: Vec<f32> = Vec::new();
-    //let mut pheromone_prev: Vec<f32> = (0..self.distances.len())
-    //.into_iter()
-    //.map(|_x| self.default_pheromone)
-    //.collect();
-    //for i in 0..(self.distances.len() - 1) {
-    //if i % 100 == 0 {
-    //println!("inside distance in genpath {}", i);
-    //}
-    ////let pheromone_prev: Vec<f32> = match self.pheromones.get(&prev) {
-    //pheromone_prev.clear();
-    //pheromone_prev = match self.pheromones.get(&prev) {
-    //Some(val) => (0..self.distances.len())
-    //.into_iter()
-    //.map(|j| {
-    //match val.get(&(j as i32)) {
-    //Some(val1) => *val1,
-    //None => self.default_pheromone,
-    //}
-    ////.to_owned()
-    //})
-    //.collect(),
-    //None => (0..self.distances.len())
-    //.into_iter()
-    //.map(|_j| (self.default_pheromone))
-    //.collect(),
-    //};
-    //
-    //distances.clear();
-    //for k in &self.distances {
-    //distances.push(AntColony::euclidean_distance(
-    //&self.distances[prev as usize],
-    //k,
-    //));
-    //}
-    //let next = self.pick_next_move(&mut pheromone_prev, &distances, &visited_nodes);
-    //antpath.push(UnitPath {
-    //start: prev,
-    //end: next,
-    //});
-    //prev = next;
-    //visited_nodes.insert(next);
-    //}
-    //antpath.push(UnitPath {
-    //start: prev,
-    //end: start,
-    //});
-    //return antpath;
-    //}
-    //
-    //fn pick_next_move(
-    //&self,
-    //pheromone: &mut Vec<f32>,
-    //distances: &Vec<f32>,
-    //visited: &FnvHashSet<i32>,
-    //) -> i32 {
-    //for i in visited {
-    //pheromone[*i as usize] = 0.0;
-    //}
-    //
-    //let mut row: Vec<f32> = Vec::with_capacity(pheromone.len());
-    //
-    //for i in 0..pheromone.len() {
-    ////into is for converting between f32 and f32
-    ////let value = (pheromone[i]).powf(self.alpha) * (1.0 / distances[i]).powf(self.beta);
-    //let value = (pheromone[i]) * (1.0 / distances[i]);
-    //row.push(value);
-    //}
-    //
-    //let dist = WeightedIndex::new(&row).unwrap();
-    //let mut rng = thread_rng();
-    //self.nodes[dist.sample(&mut rng)]
-    //}
+    /*fn gen_path(&self, start: i32) -> Vec<UnitPath> {
+        println!("inside genpath");
+        let mut antpath: Vec<UnitPath> = Vec::new();
+        let mut visited_nodes: FnvHashSet<i32> = FnvHashSet::default();
+        visited_nodes.insert(start);
+        let mut prev = start;
+        let mut distances: Vec<f32> = Vec::new();
+        //let mut pheromone_prev: Vec<f32> = Vec::new();
+        let mut pheromone_prev: Vec<f32> = (0..self.distances.len())
+            .into_iter()
+            .map(|_x| self.default_pheromone)
+            .collect();
+        for i in 0..(self.distances.len() - 1) {
+            if i % 100 == 0 {
+                println!("inside distance in genpath {}", i);
+            }
+            //let pheromone_prev: Vec<f32> = match self.pheromones.get(&prev) {
+            pheromone_prev.clear();
+            pheromone_prev = match self.pheromones.get(&prev) {
+                Some(val) => (0..self.distances.len())
+                    .into_iter()
+                    .map(|j| {
+                        match val.get(&(j as i32)) {
+                            Some(val1) => *val1,
+                            None => self.default_pheromone,
+                        }
+                        //.to_owned()
+                    })
+                    .collect(),
+                None => (0..self.distances.len())
+                    .into_iter()
+                    .map(|_j| (self.default_pheromone))
+                    .collect(),
+            };
+
+            distances.clear();
+            for k in &self.distances {
+                distances.push(AntColony::euclidean_distance(
+                    &self.distances[prev as usize],
+                    k,
+                ));
+            }
+            let next = self.pick_next_move(&mut pheromone_prev, &distances, &visited_nodes);
+            antpath.push(UnitPath {
+                start: prev,
+                end: next,
+            });
+            prev = next;
+            visited_nodes.insert(next);
+        }
+        antpath.push(UnitPath {
+            start: prev,
+            end: start,
+        });
+        return antpath;
+        }
+    }
+
+    fn pick_next_move(
+        &self,
+        pheromone: &mut Vec<f32>,
+        distances: &Vec<f32>,
+        visited: &FnvHashSet<i32>,
+    ) -> i32 {
+        for i in visited {
+            pheromone[*i as usize] = 0.0;
+        }
+
+        let mut row: Vec<f32> = Vec::with_capacity(pheromone.len());
+
+        for i in 0..pheromone.len() {
+            //into is for converting between f32 and f32
+            //let value = (pheromone[i]).powf(self.alpha) * (1.0 / distances[i]).powf(self.beta);
+            let value = (pheromone[i]) * (1.0 / distances[i]);
+            row.push(value);
+        }
+
+        let dist = WeightedIndex::new(&row).unwrap();
+        let mut rng = thread_rng();
+        self.nodes[dist.sample(&mut rng)]
+    } */
 
     fn path_distance(&self, iteration_path: &Vec<UnitPath>) -> f32 {
         iteration_path
