@@ -120,7 +120,7 @@ impl AntColony {
                 });
                 start = *i;
             }
-            let shortest_path_all_time = TourPath {
+            shortest_path_all_time = TourPath {
                     distance: self.path_distance(&ant_path),
                     path: ant_path,
                 };
