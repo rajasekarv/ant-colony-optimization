@@ -371,7 +371,8 @@ impl AntColony {
 
     fn euclidean_distance(a: &Coordinate, b: &Coordinate) -> f32 {
         //let distance = ((a.x - b.x).powf(2.0) + (a.y - b.y).powf(2.0)).sqrt();
-        let distance = ((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)).sqrt();
+        //let distance = ((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)).sqrt();
+        let distance = (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
         if distance == 0.0 {
             return std::f32::INFINITY;
         } else {
